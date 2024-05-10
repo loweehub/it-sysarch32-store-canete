@@ -1,42 +1,38 @@
-import { useState, useEffect } from 'react';
-import './App.css';
-import { Auth } from "./components/auth";
-import { db } from './config/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+// App.jsx
+import React, { useState } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import ProductsList from "./components/ProductsList";
+import Cart from "./components/Cart";
+import Footer from "./components/Footer";
+
 
 function App() {
-  const [shoesList, setShoeList] = useState([]);
-
-  useEffect(() => {
-    const shoesCollectionRef = collection(db, "shoes");
-
-    const getShoeList = async () => {
-      try {
-        // Read the data from Firestore
-        const querySnapshot = await getDocs(shoesCollectionRef);
-        const data = querySnapshot.docs.map(doc => doc.data());
-        // Set the shoe list state with the fetched data
-        setShoeList(data);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
-    // Call the getShoeList function once when the component mounts
-    getShoeList();
-  }, []);
+  const [cartItems, setCartItems] = useState(0); // State to track cart items count
 
   return (
-    <div className='App'>
-      <Auth />
-      {/* Render the shoe list */}
-      <h2>Shoe List</h2>
-      <ul>
-        {shoesList.map((shoe, index) => (
-          <li key={index}>{shoe.name}</li> 
-        ))}
-      </ul>
-    </div>
+    <>
+    <Router>
+      <div className="container">
+        {/* Pass cartItems count as prop */}
+        <Navbar cartItems={cartItems} />
+        <Routes>
+          <Route
+            path="/"
+            element={<ProductsList setCartItems={setCartItems} />}
+          />
+          {/* Pass cartItems count and setter function as props */}
+          <Route
+            path="/cart"
+            element={<Cart cartItems={cartItems} setCartItems={setCartItems} />} // Pass cartItems count and setter function as props
+          />
+        </Routes>
+      </div>
+    </Router>
+    
+    <Footer/>
+   
+   </>
   );
 }
 
